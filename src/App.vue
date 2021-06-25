@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <h1 style="color: white; text-align: center; margin-bottom: 3rem;">Rela Universitario (villavicencio) {{ id }}</h1>
+    <h4 style="color: white; text-align: center; margin-bottom: 3rem;">Rela U (villao)</h4>
     <Tinder class="tinder" key-name="id" :queue.sync="queue" :offset-y="10" @submit="onSubmit">
       <template slot-scope="scope">
         <div
