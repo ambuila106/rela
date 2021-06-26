@@ -19,8 +19,8 @@
 
 <script>
 import Tinder from "vue-tinder";
-import source from "./bing";
-import Api from "./api/index.js"
+//import source from "./bing";
+import Db from "./utils/firebase.js";
 
 export default {
   name: "App",
@@ -29,28 +29,35 @@ export default {
     queue: [],
     offset: 0,
     id: 0,
+    data: [],
   }),
 
   async created() {
-    this.mock();
-    let api = new Api();
-    api.getIdByUser('iambuila').then(r => {
-        this.id = r.data.data.id;
-    }).catch(function (error) {
+    let db = new Db();
+    db.getDatabase("participants").then(async (snapshot) => {
+        if (snapshot.exists()) {
+          this.data = await snapshot.val();
+          this.mock();
+        } else {
+          console.log("No data available");
+        }
+    }).catch((error) => {
         console.error(error);
     });
   },
 
   methods: {
-    mock(count = 5) {
+    async mock() {
       const list = [];
-      for (let i = 0; i < count; i++) {
-        list.push({ id: source[this.offset] });
+      for (let i = 0; i < this.data.length; i++) {
+        list.push({ id: this.data[this.offset] });
         this.offset++;
       }
       this.queue = this.queue.concat(list);
     },
+
     onSubmit() {
+      console.log("submit")
       if (this.queue.length < 3) {
         this.mock();
       }
