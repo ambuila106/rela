@@ -9,7 +9,9 @@
             'background-image': `url(${scope.data.value})`
           }"
         />
+        <div class="point">✰ {{ scope.data.point.like }}</div>
       </template>
+
       <img class="like-pointer" slot="like" src="./assets/like-txt.png">
       <img class="nope-pointer" slot="nope" src="./assets/nope-txt.png">
     </Tinder>
@@ -29,17 +31,30 @@ export default {
     offset: 0,
     id: 0,
     data: [],
+    points: [],
   }),
 
   async created() {
     let db = new Db();
+
+    db.getDatabase("points").then(async (snapshot) => {
+      if (snapshot.exists()) {
+        this.points = await snapshot.val();
+        console.log(this.points);
+      } else {
+        console.log("No data available");
+      }
+    }).catch((error) => {
+        console.error(error);
+    });
+
     db.getDatabase("participants").then(async (snapshot) => {
-        if (snapshot.exists()) {
-          this.data = await snapshot.val();
-          this.mock();
-        } else {
-          console.log("No data available");
-        }
+      if (snapshot.exists()) {
+        this.data = await snapshot.val();
+        this.mock();
+      } else {
+        console.log("No data available");
+      }
     }).catch((error) => {
         console.error(error);
     });
@@ -50,7 +65,7 @@ export default {
       const list = [];
       for (let i = 0; i < this.data.length; i++) {
         if (this.data[this.offset]) {
-          list.push({ id: i, value: this.data[this.offset] });
+          list.push({ id: i, value: this.data[this.offset], point: this.points[i] });
         }
         this.offset++;
       }
@@ -80,7 +95,21 @@ export default {
       }).catch((error) => {
           console.error(error);
       });
+    },
 
+    async getPoint(id) {
+      let database = firebase.database();
+      let currentPoint = 0;
+      database.ref().child('points').child(id).get().then(async (snapshot) => {
+          if (snapshot.exists()) {
+            currentPoint = await snapshot.val().like;
+            return currentPoint;
+          } else {
+            console.log("No data available");
+          }
+      }).catch((error) => {
+          console.error(error);
+      });
     }
   }
 };
@@ -147,5 +176,12 @@ body {
   height: 100%;
   background-size: cover;
   background-position: center;
+}
+
+.point {
+  position: absolute;
+  color: white;
+  box-shadow: black;
+  top: 0;
 }
 </style>
