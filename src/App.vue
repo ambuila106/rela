@@ -6,20 +6,19 @@
         <div
           class="pic"
           :style="{
-            'background-image': `url(${scope.data.id})`
+            'background-image': `url(${scope.data.value})`
           }"
         />
       </template>
       <img class="like-pointer" slot="like" src="./assets/like-txt.png">
       <img class="nope-pointer" slot="nope" src="./assets/nope-txt.png">
-      <img class="super-pointer" slot="super" src="./assets/super-txt.png">
     </Tinder>
   </div>
 </template>
 
 <script>
 import Tinder from "vue-tinder";
-//import source from "./bing";
+import firebase from "firebase";
 import Db from "./utils/firebase.js";
 
 export default {
@@ -50,17 +49,38 @@ export default {
     async mock() {
       const list = [];
       for (let i = 0; i < this.data.length; i++) {
-        list.push({ id: this.data[this.offset] });
+        if (this.data[this.offset]) {
+          list.push({ id: i, value: this.data[this.offset] });
+        }
         this.offset++;
       }
       this.queue = this.queue.concat(list);
     },
 
-    onSubmit() {
-      console.log("submit")
-      if (this.queue.length < 3) {
-        this.mock();
-      }
+    onSubmit(data) {
+      console.log(data)
+      this.updatePoint(data.item.id, data.type)
+    },
+
+    async updatePoint(key, type) {
+      console.log(key);
+      let database = firebase.database();
+      let currentPoint = 0;
+      database.ref().child('points').child(key).get().then(async (snapshot) => {
+          if (snapshot.exists()) {
+            currentPoint = await snapshot.val().like;
+            await database.ref('points/' + key).set(
+              (type == 'like') ?
+              { like: currentPoint + 1 } :
+              { like: currentPoint - 1}
+            );
+          } else {
+            console.log("No data available");
+          }
+      }).catch((error) => {
+          console.error(error);
+      });
+
     }
   }
 };
