@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <h4 style="color: white; text-align: center; margin-bottom: 3rem;">Rela U (villao)</h4>
+    <div class="title">
+      <h3>Rela U (villao)</h3>
+    </div>
+
     <Tinder class="tinder" key-name="id" :queue.sync="queue" :offset-y="10" @submit="onSubmit">
       <template slot-scope="scope">
         <div
@@ -87,7 +90,7 @@ export default {
             await database.ref('points/' + key).set(
               (type == 'like') ?
               { like: currentPoint + 1 } :
-              { like: currentPoint - 1}
+              { like: currentPoint }
             );
           } else {
             console.log("No data available");
@@ -179,9 +182,16 @@ body {
 }
 
 .point {
-  position: absolute;
+    position: absolute;
+    color: white;
+    top: 0;
+    background-color: #20262ead;
+    padding: 5px 10px;
+}
+
+.title {
   color: white;
-  box-shadow: black;
-  top: 0;
+  text-align: center;
+  margin-bottom: 3rem;
 }
 </style>
