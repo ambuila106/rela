@@ -25,6 +25,7 @@
 import Tinder from "vue-tinder";
 import firebase from "firebase";
 import Db from "./utils/firebase.js";
+import arrayShuffle from "array-shuffle";
 
 export default {
   name: "App",
@@ -72,7 +73,7 @@ export default {
         }
         this.offset++;
       }
-      this.queue = this.queue.concat(list);
+      this.queue = arrayShuffle(this.queue.concat(list));
     },
 
     onSubmit(data) {
